@@ -9,7 +9,12 @@
 
 #include "input_stream.h"
 
-std::condition_variable read_complete;
+
+//TODO: add usage and run from cmd line
+// add make and catch test
+// run with multiple objects
+// update aggregate and total counts
+
 
 /**
 * Ex1 - calculates word count of single stream in single thread
@@ -17,9 +22,7 @@ std::condition_variable read_complete;
 void ex1() {
     std::string input = "The the cat!!1 sat sat  sat sat  on456    the>>>   mat.";
     InputStream I(input, 0, false);
-//    I.readStream();
-//    I.calculateAndPrintWordCount();
-    I.readStream_slow();
+    I.readStream();
     I.calculateWordCount();
     I.printWordCount();
 }
@@ -34,13 +37,13 @@ void ex2() {
 
 //    std::string input2 = "Alice was beginning to get very tired of sitting by her  sister on the   bank, and of having nothing to do:";
 //    InputStream I2(input2, 5, true);
-    InputStream I2(kExampleText, 50, false);
+    InputStream I2(kExampleText, 50, true);
 
     // while reading in progress
     // sleep for 10 seconds and print intermediate counts
     // once reading is complete; join threads and print final counts
     
-    std::future<void> fu = std::async( std::launch::async, &InputStream::readStream_slow, &I2  ); // launch read task
+    std::future<void> fu = std::async( std::launch::async, &InputStream::readStream, &I2  ); // launch read task
     while( fu.wait_for(std::chrono::seconds(10)) != std::future_status::ready )
     {
         std::cout << "\n----------- Intermediate Counts -----------" <<  std::endl;
@@ -50,8 +53,6 @@ void ex2() {
     std::cout << "\n----------- Final Counts -----------" <<  std::endl;
     I2.calculateWordCount();
     I2.printWordCount();
-    
-    
 }
 
 

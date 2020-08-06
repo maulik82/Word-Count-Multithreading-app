@@ -31,7 +31,6 @@ class InputStream {
     void calculateWordCount();
     void printWordCount();
     void readStream();
-    void readStream_slow();
 
     
     std::vector<std::string> words;     //TODO: REMOVE visibility once tested ok

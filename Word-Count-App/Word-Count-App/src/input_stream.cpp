@@ -89,6 +89,7 @@ void InputStream::calculateWordCount() {
 //     std::cout << std::endl;
     
     wordCountMap = countWords( words );  // update word count map
+    words.clear();
  }
 
 
@@ -105,21 +106,6 @@ InputStream::InputStream(std::string contents, int seed, bool slow)
 }
 
 void InputStream::readStream() {
-    char ch;
-    while( TakeChar(ch) ){
-        std::unique_lock<std::mutex> locker(mu_);
-        contentsRead_ << ch;
-        locker.unlock();
-//        std::cout << ch;
-//        if( (contentsRead_.str().size() % 30) ==0)
-//            std::cout << "\n" << contentsRead_.str() <<  std::endl;
-    }
-    std::cout << "\nRead Complete...." <<  std::endl;
-
-}
-
-
-void InputStream::readStream_slow() {
     char ch;
     while( TakeChar(ch) ){
         std::unique_lock<std::mutex> locker(mu_);
