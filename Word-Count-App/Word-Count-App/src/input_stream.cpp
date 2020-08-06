@@ -5,9 +5,7 @@
 */
 void InputStream::printWordCount()
 {
-      std::unique_lock<std::mutex> locker(mu_);
       std::vector<std::pair<size_t, std::string>> output_map  = invertMap2(wordCountMap);
-      locker.unlock();
 
     // sort the vector pair to get  results similar to a map
       sort(output_map.begin(),  output_map.end(),    [](std::pair<size_t, std::string>& a,    std::pair<size_t, std::string>& b)
@@ -18,7 +16,7 @@ void InputStream::printWordCount()
       });
     
       for (auto it  = output_map.begin();  it != output_map.end();  ++it)
-          std::cout << it->second << " : "  << it->first << "\n";
+          std::cout << it->second << " : "  << it->first << ", ";
 }
 
 
@@ -28,8 +26,8 @@ void InputStream::printWordCount()
 void InputStream::calculateAndPrintWordCount() {
 
     std::string tmp; // A string to store the word on each iteration.
-//    std::stringstream str_strm(contents_);
-    //     std::vector<string> words; // Create vector to hold our words
+
+    std::unique_lock<std::mutex> locker(mu_);
     while (contentsRead_ >> tmp) {
         if(!tmp.empty())    // check for non empty strings
         {
@@ -43,7 +41,8 @@ void InputStream::calculateAndPrintWordCount() {
             words.push_back(tmp);
         }
     }
-    
+    locker.unlock();
+
      //    DEBUG
 //     std::cout << "Number of words: " << words.size() << "\n";
 //     for (auto ele: words)
@@ -60,32 +59,36 @@ void InputStream::calculateAndPrintWordCount() {
 */
 void InputStream::calculateWordCount() {
 
-    std::string tmp; // A string to store the word on each iteration.
-//    std::stringstream str_strm(contents_);
-    //     std::vector<string> words; // Create vector to hold our words
-    while (contentsRead_ >> tmp) {
-        if(!tmp.empty())    // check for non empty strings
+    std::unique_lock<std::mutex> locker(mu_);
+    std::string tmp = contents2_; //TODO: do we need to clear contents?
+    locker.unlock();
+    std::string word = "";
+    for (auto x : tmp)
+    {
+        if (x == ' ')
         {
-            for(int i=0; i<tmp.length(); i++)
-            {
-              if(!isalpha(tmp[i]))
-                  tmp.erase(i);     //; now strip all non alpha numeric characters
+            if(!word.empty()){
+                std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c){ return std::tolower(c); });  // convert all to lowercase
+                words.push_back( word );
+                word = "";
             }
-            // convert all to lowercase
-            std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c){ return std::tolower(c); });
-            words.push_back( tmp );
         }
+        else if(isalpha(x))   // TODO: check if any special chars such as '-' needs to be considered as part of word
+            word = word + x;
     }
-    
+    if(!word.empty()){
+        // push last word
+        std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c){ return std::tolower(c); }); // convert all to lowercase
+        words.push_back( word );
+    }
+
      //    DEBUG
 //     std::cout << "Number of words: " << words.size() << "\n";
 //     for (auto ele: words)
 //         std::cout << ele <<",";
 //     std::cout << std::endl;
     
-    std::unique_lock<std::mutex> locker(mu_);
     wordCountMap = countWords( words );  // update word count map
-    locker.unlock();
  }
 
 
@@ -101,15 +104,29 @@ InputStream::InputStream(std::string contents, int seed, bool slow)
   rng_.seed(seed);
 }
 
-
 void InputStream::readStream() {
     char ch;
     while( TakeChar(ch) ){
+        std::unique_lock<std::mutex> locker(mu_);
         contentsRead_ << ch;
+        locker.unlock();
 //        std::cout << ch;
 //        if( (contentsRead_.str().size() % 30) ==0)
 //            std::cout << "\n" << contentsRead_.str() <<  std::endl;
     }
+    std::cout << "\nRead Complete...." <<  std::endl;
+
+}
+
+
+void InputStream::readStream_slow() {
+    char ch;
+    while( TakeChar(ch) ){
+        std::unique_lock<std::mutex> locker(mu_);
+        contents2_+=ch;
+        locker.unlock();
+    }
+    std::cout << "\nRead Complete...." <<  std::endl;
 }
 
 

@@ -30,15 +30,16 @@ class InputStream {
     void calculateAndPrintWordCount();
     void calculateWordCount();
     void printWordCount();
-    
     void readStream();
-    
+    void readStream_slow();
+
     
     std::vector<std::string> words;     //TODO: REMOVE visibility once tested ok
     std::map<std::string, size_t> wordCountMap;
 
 private:
     std::string contents_;
+    std::string contents2_;
     std::stringstream contentsRead_;
     bool slow_;
     std::mt19937 rng_;
