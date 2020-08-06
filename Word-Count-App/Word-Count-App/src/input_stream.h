@@ -31,12 +31,14 @@ class InputStream {
     void calculateWordCount();
     void printWordCount();
     void readStream();
+    InputStream();
 
     
-    std::vector<std::string> words;     //TODO: REMOVE visibility once tested ok
+    std::mutex mu_words_;
     std::map<std::string, size_t> wordCountMap;
-
+    std::vector<std::string> words_accumulated;
 private:
+    std::vector<std::string> words;     //TODO: REMOVE visibility once tested ok
     std::string contents_;
     std::string contents2_;
     std::stringstream contentsRead_;
@@ -45,7 +47,7 @@ private:
     std::uniform_int_distribution<int> dist_{1, 100};
     size_t index_{0};
     std::mutex mu_;
-    
+
 };
 
 extern const char *kExampleText;

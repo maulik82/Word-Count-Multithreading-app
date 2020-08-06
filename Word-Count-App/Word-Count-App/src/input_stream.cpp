@@ -1,23 +1,6 @@
 #include "input_stream.h"
 
-/**
-* Prints already calculated word count for the input stream
-*/
-void InputStream::printWordCount()
-{
-      std::vector<std::pair<size_t, std::string>> output_map  = invertMap2(wordCountMap);
 
-    // sort the vector pair to get  results similar to a map
-      sort(output_map.begin(),  output_map.end(),    [](std::pair<size_t, std::string>& a,    std::pair<size_t, std::string>& b)
-      {
-          if (a.first != b.first)
-              return a.first > b.first;
-          return a.second > b.second;
-      });
-    
-      for (auto it  = output_map.begin();  it != output_map.end();  ++it)
-          std::cout << it->second << " : "  << it->first << ", ";
-}
 
 
 /**
@@ -61,6 +44,7 @@ void InputStream::calculateWordCount() {
 
     std::unique_lock<std::mutex> locker(mu_);
     std::string tmp = contents2_; //TODO: do we need to clear contents?
+    contents2_.clear();
     locker.unlock();
     std::string word = "";
     for (auto x : tmp)
@@ -89,10 +73,31 @@ void InputStream::calculateWordCount() {
 //     std::cout << std::endl;
     
     wordCountMap = countWords( words );  // update word count map
+    
+    std::unique_lock<std::mutex> locker2(mu_words_);
+    words_accumulated.insert(words_accumulated.end(), words.begin(), words.end());
+    locker2.unlock();
     words.clear();
  }
 
+/**
+* Prints already calculated word count for the input stream
+*/
+void InputStream::printWordCount()
+{
+      std::vector<std::pair<size_t, std::string>> output_map  = invertMap2(wordCountMap);
 
+    // sort the vector pair to get  results similar to a map
+      sort(output_map.begin(),  output_map.end(),    [](std::pair<size_t, std::string>& a,    std::pair<size_t, std::string>& b)
+      {
+          if (a.first != b.first)
+              return a.first > b.first;
+          return a.second > b.second;
+      });
+    
+      for (auto it  = output_map.begin();  it != output_map.end();  ++it)
+          std::cout << it->second << " : "  << it->first << ", ";
+}
 
 /**
  * Create an InputStream that reads from a string
@@ -104,6 +109,14 @@ InputStream::InputStream(std::string contents, int seed, bool slow)
     : contents_{std::move(contents)}, slow_{slow} {
   rng_.seed(seed);
 }
+
+
+
+/**
+*   Default constructor
+*/
+InputStream::InputStream()
+    : InputStream{kExampleText, 50, true} {}
 
 void InputStream::readStream() {
     char ch;
@@ -137,6 +150,11 @@ bool InputStream::TakeChar(char &ch) {
     ch = contents_[index_++];
         return true;
 }
+
+
+
+
+
 
 const char *kExampleText = R"(
     Alice was beginning to get very tired of sitting by her sister on the
