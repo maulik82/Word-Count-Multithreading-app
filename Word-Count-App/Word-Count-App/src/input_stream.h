@@ -26,12 +26,10 @@ class InputStream {
     * @return True if a character was returned
     */
     bool TakeChar(char &ch);
-    void PreProcess_Contents() ;
-    void calculateAndPrintWordCount();
     void calculateWordCount();
     void printWordCount();
     void readStream();
-    InputStream();
+    InputStream();          // default constructor
 
     
     std::mutex mu_words_;
@@ -41,7 +39,6 @@ private:
     std::vector<std::string> words;     //TODO: REMOVE visibility once tested ok
     std::string contents_;
     std::string contents2_;
-    std::stringstream contentsRead_;
     bool slow_;
     std::mt19937 rng_;
     std::uniform_int_distribution<int> dist_{1, 100};

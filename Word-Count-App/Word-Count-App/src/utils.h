@@ -25,6 +25,7 @@
 
 extern std::vector<std::string> split_string(std::string strToSplit, char delimeter);
 extern std::map<std::string, size_t> countWords(std::vector<std::string> const& words);
+extern void printMap(  std::map<std::string, size_t>& countMap );
 
 // Function to swap keys and values of a map and return a vector pair of the swapped values
 template <typename K, typename V>

@@ -2,41 +2,6 @@
 
 
 
-
-/**
-* Calculates and prints word count for the input stream
-*/
-void InputStream::calculateAndPrintWordCount() {
-
-    std::string tmp; // A string to store the word on each iteration.
-
-    std::unique_lock<std::mutex> locker(mu_);
-    while (contentsRead_ >> tmp) {
-        if(!tmp.empty())    // check for non empty strings
-        {
-            for(int i=0; i<tmp.length(); i++)
-            {
-              if(!isalpha(tmp[i]))
-                  tmp.erase(i);     //; now strip all non alpha numeric characters
-            }
-            // convert all to lowercase
-            std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c){ return std::tolower(c); });
-            words.push_back(tmp);
-        }
-    }
-    locker.unlock();
-
-     //    DEBUG
-//     std::cout << "Number of words: " << words.size() << "\n";
-//     for (auto ele: words)
-//         std::cout << ele <<",";
-//     std::cout << std::endl;
-    
-     wordCountMap = countWords(words);  // update word count map
-     printWordCount();
- }
- 
-
 /**
 * Calculates word count for the input stream
 */
@@ -116,7 +81,7 @@ InputStream::InputStream(std::string contents, int seed, bool slow)
 *   Default constructor
 */
 InputStream::InputStream()
-    : InputStream{kExampleText, 50, true} {}
+    : InputStream{kExampleText, 500, false} {}
 
 void InputStream::readStream() {
     char ch;
@@ -125,7 +90,7 @@ void InputStream::readStream() {
         contents2_+=ch;
         locker.unlock();
     }
-    std::cout << "\nRead Complete...." <<  std::endl;
+    std::cout << "Read complete.. " << std::endl;
 }
 
 
