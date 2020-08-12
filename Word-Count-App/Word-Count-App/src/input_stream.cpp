@@ -37,10 +37,10 @@ void InputStream::calculateWordCount() {
         words.push_back( word ); // push last word
 
      //    DEBUG
-     std::cout << "Number of words: " << words.size() << "\n";
-     for (auto ele: words)
-         std::cout << ele <<",";
-     std::cout << std::endl;
+//     std::cout << "Number of words: " << words.size() << "\n";
+//     for (auto ele: words)
+//         std::cout << ele <<",";
+//     std::cout << std::endl;
     
     wordCountMap = countWords( words );  // update word count map
     
