@@ -32,17 +32,17 @@ std::map<std::string, size_t> countWords(std::vector<std::string> const& words)
 
 void printMap(  std::map<std::string, size_t>& countMap )
 {
-      std::vector<std::pair<size_t, std::string>> output_map  = invertMap2(countMap);
+    std::vector<std::pair<size_t, std::string>> output_map  = invertMap2(countMap);
 
     // sort the vector pair to get  results similar to a map
-      sort(output_map.begin(),  output_map.end(),    [](std::pair<size_t, std::string>& a,    std::pair<size_t, std::string>& b)
-      {
-          if (a.first != b.first)
-              return a.first > b.first;
-          return a.second > b.second;
-      });
-    
-      for (auto it  = output_map.begin();  it != output_map.end();  ++it)
-          std::cout << it->second << " : "  << it->first << ", ";
+    sort(output_map.begin(),  output_map.end(),    [](std::pair<size_t, std::string>& a,    std::pair<size_t, std::string>& b)
+    {
+      if (a.first != b.first)
+          return a.first > b.first;
+      return a.second > b.second;
+    });
+
+    for (auto it  = output_map.begin();  it != output_map.end();  ++it)
+      std::cout << it->second << " : "  << it->first << ", ";
 }
 

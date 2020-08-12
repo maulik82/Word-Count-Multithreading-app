@@ -11,6 +11,16 @@
 
 /**
 * Ex1 - calculates word count of single stream in single thread
+ The InputStream class (declared in input_stream.h) allows a stream of text to be read character-by-character.
+ Write code to count the number of occurrences of each word and display the totals. For example:
+ Input: "The cat sat on the mat."
+ Output:
+ the : 2
+ cat : 1
+ mat : 1
+ on : 1
+ sat : 1
+ The output should be sorted by descending word frequency with ties ordered alphabetically.
 */
 void ex1( std::string input ) {
 //    std::string input = "The the cat!!1 sat sat  sat sat  on456    the>>>   mat.";
@@ -23,28 +33,33 @@ void ex1( std::string input ) {
 
 /**
 * Ex2 - calculates word count of mulitple streams in multiple threads
-*/
+ By passing in a random seed and the ‘slow’ flag to the constructor, InputStream can simulate
+ the delays that might be experienced when reading data over a network.
+ Write code that takes 10 InputStream objects and consumes them in parallel.
+ It should output intermediate word counts every 10 seconds and a final total at the end.
+ The ‘kExampleText’ constant provides some example text to test your implementation against
+ */
 void ex2() {
 
-    static const int numOfObjects = 10;
+    static const int numOfObjects = 1;
     InputStream I[numOfObjects];
-    std::future<void> fu[numOfObjects];
+    std::future<bool> fu[numOfObjects];
     std::vector<std::string> total_words_accumulated;
     std::map<std::string, size_t> totalwordCountMap;
 
     for( auto i{0}; i< numOfObjects; i++ )
         fu[i] = std::async( std::launch::async, &InputStream::readStream, &I[i]);   // create separate thread for each stream object capture
-    
-     while( ( fu[0].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[1].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[2].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[3].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[4].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[5].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[6].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[7].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[8].wait_for(std::chrono::seconds(10)) != std::future_status::ready )    &&
-            ( fu[9].wait_for(std::chrono::seconds(10)) != std::future_status::ready ) )
+       
+    volatile bool allThreadsCompleted = true;
+    for( auto i{0}; i< numOfObjects; i++ )
+    {
+        if( fu[i].wait_for(std::chrono::seconds(0)) != std::future_status::ready ){
+            allThreadsCompleted = false;
+            break;
+        }
+    }
+     
+    while( !allThreadsCompleted )
      {
          std::cout << "\n----------- Intermediate Counts -----------" <<  std::endl;
          for( auto i{0}; i< numOfObjects; i++ )
@@ -57,7 +72,20 @@ void ex2() {
          totalwordCountMap = countWords( total_words_accumulated );  // update total word count map
          printMap(totalwordCountMap);       // print intermediate map
          total_words_accumulated.clear();   // clear for next use
+         std::this_thread::sleep_for(std::chrono::seconds(10));
+         allThreadsCompleted = true;
+         for( auto i{0}; i< numOfObjects; i++ )
+         {
+             if( fu[i].wait_for(std::chrono::seconds(0)) != std::future_status::ready ){
+                 allThreadsCompleted = false;
+                 break;
+             }
+         }
      }
+    
+    
+    
+  
     std::cout << "\n----------- Final Counts -----------" <<  std::endl;
     for( auto i{0}; i< numOfObjects; i++ )
     {
@@ -68,6 +96,7 @@ void ex2() {
     }
     totalwordCountMap = countWords( total_words_accumulated );  // update total word count map
     printMap(totalwordCountMap);    // print intermediate map
+
 }
 
 

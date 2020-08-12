@@ -28,10 +28,10 @@ class InputStream {
     bool TakeChar(char &ch);
     void calculateWordCount();
     void printWordCount();
-    void readStream();
+    bool readStream();
     InputStream();          // default constructor
 
-    
+
     std::mutex mu_words_;
     std::map<std::string, size_t> wordCountMap;
     std::vector<std::string> words_accumulated;
@@ -39,6 +39,8 @@ private:
     std::vector<std::string> words;     //TODO: REMOVE visibility once tested ok
     std::string contents_;
     std::string contents2_;
+    std::string lastWord_;
+    bool streamReadComplete_ {false};
     bool slow_;
     std::mt19937 rng_;
     std::uniform_int_distribution<int> dist_{1, 100};

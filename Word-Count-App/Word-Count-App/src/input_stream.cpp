@@ -8,7 +8,7 @@
 void InputStream::calculateWordCount() {
 
     std::unique_lock<std::mutex> locker(mu_);
-    std::string tmp = contents2_; //TODO: do we need to clear contents?
+    std::string tmp = lastWord_ + contents2_; //TODO: do we need to clear contents?
     contents2_.clear();
     locker.unlock();
     std::string word = "";
@@ -25,17 +25,22 @@ void InputStream::calculateWordCount() {
         else if(isalpha(x))   // TODO: check if any special chars such as '-' needs to be considered as part of word
             word = word + x;
     }
-    if(!word.empty()){
-        // push last word
-        std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c){ return std::tolower(c); }); // convert all to lowercase
-        words.push_back( word );
-    }
+    if( !streamReadComplete_ ) {
+        if(!word.empty()){
+            std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c){ return std::tolower(c); }); // convert all to lowercase
+            lastWord_ = word;   // save last word of current stream if not ending by space
+        }
+        else
+            lastWord_ ="";
+        }
+    else
+        words.push_back( word ); // push last word
 
      //    DEBUG
-//     std::cout << "Number of words: " << words.size() << "\n";
-//     for (auto ele: words)
-//         std::cout << ele <<",";
-//     std::cout << std::endl;
+     std::cout << "Number of words: " << words.size() << "\n";
+     for (auto ele: words)
+         std::cout << ele <<",";
+     std::cout << std::endl;
     
     wordCountMap = countWords( words );  // update word count map
     
@@ -81,16 +86,17 @@ InputStream::InputStream(std::string contents, int seed, bool slow)
 *   Default constructor
 */
 InputStream::InputStream()
-    : InputStream{kExampleText, 500, false} {}
+    : InputStream{kExampleText, 50, true} {}
 
-void InputStream::readStream() {
+bool InputStream::readStream() {
     char ch;
     while( TakeChar(ch) ){
         std::unique_lock<std::mutex> locker(mu_);
         contents2_+=ch;
         locker.unlock();
     }
-    std::cout << "Read complete.. " << std::endl;
+    streamReadComplete_ = true;
+    return true;
 }
 
 
@@ -108,16 +114,11 @@ bool InputStream::TakeChar(char &ch) {
         std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
     }
 
-    if (index_ >= contents_.size()) {
-        return false;
-    }
+    if (index_ >= contents_.size()) {   return false;  }
 
     ch = contents_[index_++];
         return true;
 }
-
-
-
 
 
 
