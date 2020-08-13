@@ -43,6 +43,6 @@ void printMap(  std::map<std::string, size_t>& countMap )
     });
 
     for (auto it  = output_map.begin();  it != output_map.end();  ++it)
-      std::cout << it->second << " : "  << it->first << ", ";
+      std::cout << it->second << " : "  << it->first << "\n ";
 }
 

@@ -39,10 +39,14 @@ void ex1( std::string input ) {
  It should output intermediate word counts every 10 seconds and a final total at the end.
  The ‘kExampleText’ constant provides some example text to test your implementation against
  */
-void ex2() {
+void ex2( std::string input ) {
 
-    static const int numOfObjects = 1;
+    static const int numOfObjects = 10;
     InputStream I[numOfObjects];
+    
+    for (auto i{0}; i < numOfObjects ; i++ )
+        I[i].setContents( input );
+    
     std::future<bool> fu[numOfObjects];
     std::vector<std::string> total_words_accumulated;
     std::map<std::string, size_t> totalwordCountMap;
@@ -105,7 +109,12 @@ void Usage(){
     The program can be invoked by the following command line:         \n   \
     ./Word-Count-App ex1  \"The cat sat on the mat.\"                  \n   \
     where                                                                 \n   \
-    •    ex1 runs exercise 1, followed by string to know word count for " << std::endl;
+    •    ex1 runs exercise 1, followed by string to know word count for  \
+    OR  \
+    ./Word-Count-App ex2  \"Type a very long string here to .\"                  \n   \
+    where                                                                 \n   \
+    •    ex2 runs exercise 2, followed by string to know word count for " \
+    << std::endl;
 }
 
 
@@ -114,7 +123,10 @@ void Usage(){
 */
 
 int main(int argc, const char * argv[]) {
-    std::string input = "The the cat!!1 sat sat  sat sat  on456    the>>>   mat.";   // default input
+    std::string input_ex1 = "The the cat!!1 sat sat  sat sat  on456    the>>>   mat.";   // default input
+    std::string input_ex2 = kExampleText;   // default input
+
+
     if (argc == 1)
     {
         std::cout << "You have NOT provided any additional arguments." << std::endl;
@@ -124,19 +136,26 @@ int main(int argc, const char * argv[]) {
 
     else if (argc == 3)
     {
-        if( strcmp(argv[1], "ex1") != 0)  {  Usage(); std::exit(1);   }
-        else {   input =  argv[2];  }
+        if(( strcmp(argv[1], "ex1") != 0) && ( strcmp(argv[1], "ex2") != 0) )
+            {  Usage(); std::exit(1);   }
+        else {
+           if ( strcmp(argv[1], "ex1") == 0)
+               input_ex1 =  argv[2];
+            else
+                input_ex2 =  argv[2];
+
+        }
     }
     else
     {
         Usage();
     }
     
-    std::cout << "Running exercise 1  with input : " << input << std::endl;
-    ex1( input );      // Run exercise 1
+    std::cout << "Running exercise 1  with input : " << input_ex1 << std::endl;
+    ex1( input_ex1 );      // Run exercise 1
     std::cout << "\n---------------------" << std::endl;
     std::cout << "Running exercise 2 " << std::endl;
-    ex2();      // Run exercise 2
+    ex2( input_ex2 );      // Run exercise 2
 
     std::cout << std::endl;
     return 0;

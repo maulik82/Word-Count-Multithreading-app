@@ -30,6 +30,7 @@ class InputStream {
     void printWordCount();
     bool readStream();
     InputStream();          // default constructor
+    void setContents(std::string contents);
 
 
     std::mutex mu_words_;

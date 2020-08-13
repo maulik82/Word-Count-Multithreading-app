@@ -33,8 +33,13 @@ void InputStream::calculateWordCount() {
         else
             lastWord_ ="";
         }
-    else
-        words.push_back( word ); // push last word
+    else {
+        if(!word.empty()){
+            std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c){ return std::tolower(c); }); // convert all to lowercase
+            words.push_back( word ); // push last word
+        }
+
+    }
 
      //    DEBUG
 //     std::cout << "Number of words: " << words.size() << "\n";
@@ -66,7 +71,7 @@ void InputStream::printWordCount()
       });
     
       for (auto it  = output_map.begin();  it != output_map.end();  ++it)
-          std::cout << it->second << " : "  << it->first << ", ";
+          std::cout << it->second << " : "  << it->first << "\n";
 }
 
 /**
@@ -80,6 +85,10 @@ InputStream::InputStream(std::string contents, int seed, bool slow)
   rng_.seed(seed);
 }
 
+
+void InputStream::setContents(std::string contents) {
+          contents_ = std::move(contents);
+}
 
 
 /**
